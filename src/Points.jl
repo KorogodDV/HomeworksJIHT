@@ -1,48 +1,83 @@
 module Points
 
-# Следющие имена должны быть публичными:
-# Point, neighbors, Circle, Square, center
+import LinearAlgebra
+import Base: *, +, /
 
-"""
-    Point(x, y)
+export Point, neighbors, Circle, Square, center
 
-Точка на декартовой плоскости.
-"""
-Point
+struct Point
+    x
+    y
+end
 
-"""
-    center(points) -> Point
+Base.:+(a::Point, b::Point) = Point(a.x + b.x, a.y + b.y)
+Base.:-(a::Point) = Point(-a.x, -a.y)
+Base.:-(a::Point, b::Point) = a + (-b)
+Base.:*(a::Point, b::Real) = Point(a.x * b, a.y * b)
+Base.:/(a::Point, b::Real) = a * (1 / b)
+Base.:*(b::Real, a::Point) = a * b
 
-Центр "масс" точек.
-"""
-center(points)
+LinearAlgebra.dot(a::Point, b::Point) = a.x * b.x + a.y * b.y
+LinearAlgebra.norm(a::Point) = sqrt(LinearAlgebra.dot(a, a))
+inf_norm(p::Point) = max(abs(p.x), abs(p.y))
 
-"""
-    neighbors(points, origin, k) -> Vector{Point}
 
-Поиск ближайших `k` соседей точки `origin` среди точек `points`.
-"""
-neighbors(points, origin, k)
+center(points) = sum(points) / length(points)
 
-"""
-    Circle(o::Point, radius)
+function neighbors(points, origin::Point, k::Integer)
+    if k <= 0
+        return Point[]
+    elseif k >= length(points)
+        return deleteat!(vec(points), findall(x -> x == origin, vec(points)))
+    else
+        distances = []
+        res = Point[]
+        for p in points
+            if p != origin
+                append!(distances, [LinearAlgebra.norm(p-origin)])
+                append!(res, [p])
+            end
+        end
+    end
+    return res[sortperm(distances)[1:k]]
+end
 
-Круг с центром `o` и радиусом `radius`.
-"""
-Circle
+struct Circle
+    o::Point
+    radius::Real
+end
 
-"""
-    Square(o::Point, side)
+Base.:in(p::Point, circ::Circle) = (LinearAlgebra.norm(p - circ.o) <= circ.radius)
 
-Квадрат с центром в `o` и стороной `side`. Стороны квадрата параллельны осям координат.
-"""
-Square
+struct Square
+    o::Point
+    side::Real
+end
 
-"""
-    center(points, area) -> Point
+Base.:in(p::Point, sq::Square) = (inf_norm(p - sq.o) <= sq.side / 2)
 
-Центр масс точек `points`, принадлежащих области `area` (`Circle` или `Square`).
-"""
-center(points, area)
+function center(points, area::Circle)
+    sum = Point(0, 0)
+    points_in_area = 0
+    for p in points
+        if p in area
+            sum += p
+            points_in_area += 1
+        end
+    end
+    return sum / points_in_area
+end
+
+function center(points, area::Square)
+    sum = Point(0, 0)
+    points_in_area = 0
+    for p in points
+        if p in area
+            sum += p
+            points_in_area += 1
+        end
+    end
+    return sum / points_in_area
+end
 
 end # module
