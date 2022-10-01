@@ -1,24 +1,5 @@
 using LinearAlgebra
 
-
-"This function solves the linear system Ux=b for upper triangular invertible REAL matrix U using backward substitution algorithm"
-function backwardsub(U::Matrix, b::Vector)
-    ans = zeros(size(b))
-    if size(U, 1) != size(U, 2)
-        throw(ArgumentError("Matrix should be upper triangular and invertible"))
-    end
-    if U != UpperTriangular(U)
-        throw(ArgumentError("Matrix should be upper triangular and invertible"))
-    end
-    if det(UpperTriangular(U)) ≈ 0
-        throw(ArgumentError("Matrix should be invertible"))
-    end
-    for i in size(U, 1):-1:1
-        ans[i] = ((b[i] - U[i, :]' * ans)) / U[i, i]
-    end
-    return ans
-end
-
 function backwardsub!(x::Vector{Float64}, U::Matrix, b::Vector)
     if size(U, 1) != size(U, 2)
         throw(ArgumentError("Matrix should be upper triangular and invertible"))
@@ -35,24 +16,13 @@ function backwardsub!(x::Vector{Float64}, U::Matrix, b::Vector)
     end
 end
 
-
-"This function solves the linear system Ux=b for lower triangular REAL invertible matrix U using forward substitution algorithm"
-function forwardsub(L::Matrix, b::Vector)
-    ans = zeros(size(b))
-    if size(L, 1) != size(L, 2)
-        throw(ArgumentError("Matrix should be lower triangular and invertible"))
-    end
-    if L != LowerTriangular(L)
-        throw(ArgumentError("Matrix should be lower triangular and invertible"))
-    end
-    if det(LowerTriangular(L)) ≈ 0
-        throw(ArgumentError("Matrix should be invertible"))
-    end
-    for i in 1:size(L, 1)
-        ans[i] = ((b[i] - LinearAlgebra.dot(L[i, :], ans)) / L[i, i])
-    end
-    return ans
+"This function solves the linear system Ux=b for upper triangular invertible REAL matrix U using backward substitution algorithm"
+function backwardsub(U::Matrix, b::Vector)
+    x = zeros(size(b))
+    backwardsub!(x, U, b)
+    return x
 end
+
 
 function forwardsub!(x::Vector{Float64}, L::Matrix, b::Vector)
     if size(L, 1) != size(L, 2)
@@ -69,6 +39,14 @@ function forwardsub!(x::Vector{Float64}, L::Matrix, b::Vector)
         x[i] = ((b[i] - LinearAlgebra.dot(L[i, 1:i-1], x[1:i-1])) / L[i, i])
     end
 end
+
+"This function solves the linear system Ux=b for lower triangular REAL invertible matrix U using forward substitution algorithm"
+function forwardsub(L::Matrix, b::Vector)
+    x = zeros(size(b))
+    forwardsub!(x, L, b)
+    return x
+end
+
 
 "В обеих tridiagsolve будут обозначения не такие, как в задании, потому что я просто скопировал и адаптировал уже написанный на вычматах питоновский
 код, а там у нас были другие обозначения. Надеюсь, это не большая проблема."
@@ -131,4 +109,4 @@ end
 # println(tridiagsolve([0, 1, 1, 1, 1], [-2, -2, -2, -2, -2], [1, 1, 1, 1, 0], f))
 # println(tridiagsolve(Tridiagonal(T), f))
 # println(T \ f)
-#println(solution_c())
+# println(solution_c())
