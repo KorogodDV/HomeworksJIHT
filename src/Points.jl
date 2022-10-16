@@ -6,8 +6,8 @@ import Base: *, +, /
 export Point, neighbors, Circle, Square, center
 
 struct Point
-    x
-    y
+    x::Real
+    y::Real
 end
 
 Base.:+(a::Point, b::Point) = Point(a.x + b.x, a.y + b.y)
@@ -56,19 +56,7 @@ end
 
 Base.:in(p::Point, sq::Square) = (inf_norm(p - sq.o) <= sq.side / 2)
 
-function center(points, area::Circle)
-    sum = Point(0, 0)
-    points_in_area = 0
-    for p in points
-        if p in area
-            sum += p
-            points_in_area += 1
-        end
-    end
-    return sum / points_in_area
-end
-
-function center(points, area::Square)
+function center(points, area)
     sum = Point(0, 0)
     points_in_area = 0
     for p in points
