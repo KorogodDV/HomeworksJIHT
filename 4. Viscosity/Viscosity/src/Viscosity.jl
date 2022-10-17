@@ -8,23 +8,7 @@ struct Gas
     𝛆::Real
 end
 
-function hatfunc(t, k)
-    n = size(t, 1)
-    return function (x)
-        if k ≥ 2 && t[k-1] ≤ x ≤ t[k]
-            return (x - t[k-1]) / (t[k] - t[k-1])
-        elseif k ≤ n-1 && t[k] ≤ x ≤ t[k+1]
-            return (t[k+1] - x) / (t[k+1] - t[k])
-        else  # x вне [t[1], t[end]] или неподходящий k
-            return zero(x)
-        end
-    end
-end
-
-function pwlininterp(t, y)
-    basis = [hatfunc(t, k) for k in 1:size(t, 1)]
-    return x -> sum(y[k]*basis[k](x) for k in 1:size(y, 1))
-end
+include("pwlininterp.jl")
 
 function f_η(T)
     x = [0.3, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 10.0, 50.0, 100.0, 400.0]
@@ -41,8 +25,3 @@ end
 visc(gas::Gas, T::Real) = 8.44107 * 1e-5 * sqrt(gas.M * T) * f_η(T / gas.𝛆) / (gas.σ ^ 2 * Ω(T / gas.𝛆))
 
 end
-
-using .Viscosity
-
-gas = Gas(5, 5, 2)
-println(visc(gas, 50))

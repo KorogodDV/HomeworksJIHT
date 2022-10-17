@@ -1,0 +1,4 @@
+name = "Viscosity"
+uuid = "8dab2293-1d1a-407d-9e29-c398780321c1"
+authors = ["Корогод Дмитрий <korogod.dv@phystech.edu"]
+version = "0.1.0"
