@@ -1,4 +1,5 @@
 using Plots
+using LsqFit
 
 function intadapt(f, a, b, tol, xtol=eps(), fa=f(a), fb=f(b), m=(b-a)/2, fm=f(m))
     if a > b; a, b = b, a; end
@@ -38,38 +39,23 @@ end
 function calc_2()
     a, b = 0, pi / 2
     f(x) = exp(x)*cos(x)
-    res = Vector[]
+    res = Matrix(undef, 3, 0)
     for i in -2:-1:-12
         Q, nodes = intadapt(f, a, b, 10.0^i)
-        push!(res, [i, Q, length(nodes)])
+        res = hcat(res, [i; Q; length(nodes)])
     end
     return res
 end
 
 println("5.5.1:  ", calc_1())
 ad_res = calc_2()
-println(ad_res)
+ad_error = copy(ad_res)
 ex_res = (ℯ^(pi / 2) - 1) / 2
-
-# x = 1:10; y = rand(10, 2) # 2 columns means two lines
-# p = plot(x, y)
-# z = rand(10)
-# plot!(p, x, z)
-
-# a, b = 0, 1.85
-# foo(x) = x * sin(2x/(x-2))
-# Q, nodes = intadapt(foo, a, b, 1e-4)
-# plot(; layout=(2,1), xlabel=L"x", leg=:topleft, linewidth=2)
-# plot!(foo, a, b; label="функция", linewidth=2, linecolor=:red)
-# plot!(nodes, foo.(nodes);
-#     label="узлы интегрирования",
-#     seriestype=:sticks,
-#     marker=(:o, 2, :lightblue),
-#     linecolor=:blue,
-# )
-# histogram!(nodes;
-#     label="распределение числа узлов",
-#     subplot=2,
-#     bins=range(a, b; length=9),
-#     link=:x,
-# )
+ad_error[2, :] .= abs.(ex_res .- ad_error[2, :])
+f(x, p) = p[1] * x .^ p[2]
+fit = curve_fit(f, ad_error[3, :], ad_error[2, :], [1.0, 1.0])
+println("Порядок сходимости:  ", -fit.param[2])
+p = plot(ad_error[3, :], ad_error[2, :]; label = "calc_error", 
+xaxis = ("Number of nodes"),
+yaxis = ("Integration error", :log10), show = true)
+plot!(p, ad_error[3, :], f(ad_error[3, :], fit.param), label = "fit")
