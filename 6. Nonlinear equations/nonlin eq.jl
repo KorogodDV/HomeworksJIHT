@@ -42,6 +42,7 @@ end
 
 function rachford_rice_solve(z, K; xtol = 2e-10)
     sum(z) != 1 && error("Sum of the z elements must be equal to 1")
+    length(z) != length(K) && error("Arguments must be the same length")
     F(G) = sum(z .* (K .- 1) ./ (G * (K .- 1) .+ 1))
     return itproot(F, 1 / (1 - maximum(K)), 1 / (1 - minimum(K)); xtol = xtol, n₀=1)
 end
