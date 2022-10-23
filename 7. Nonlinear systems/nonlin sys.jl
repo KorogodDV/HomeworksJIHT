@@ -69,7 +69,6 @@ end
 
 V_eq = reshape(V_eq, (2, :))
 P_eq = reshape(P_eq, (2, :))
-println(V_eq, P_eq)
 plot!(plt, [V_eq[1, :], V_eq[2, :]], [P_eq[1, :], P_eq[2, :]]; 
 label = [L"V_L" L"V_G"],
 line = (4), marker = ([:circle :circle]))
