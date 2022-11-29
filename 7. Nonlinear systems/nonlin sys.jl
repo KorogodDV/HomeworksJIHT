@@ -64,7 +64,7 @@ for T in T_range
     push!(V_eq, V_eq_T...)
     push!(P_eq, create_P(T).(V_eq_T)...)
     plot!(plt, V_range, create_P(T).(V_range); label=L"T_r = %$T",
-    line = (:dash, 2))
+    line = (:dash, 2)) 
 end
 
 V_eq = reshape(V_eq, (2, :))

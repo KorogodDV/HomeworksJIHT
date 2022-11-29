@@ -52,10 +52,10 @@ ad_res = calc_2()
 ad_error = copy(ad_res)
 ex_res = (ℯ^(pi / 2) - 1) / 2
 ad_error[2, :] .= abs.(ex_res .- ad_error[2, :])
-f(x, p) = p[1] * x .^ p[2]
-fit = curve_fit(f, ad_error[3, :], ad_error[2, :], [1.0, 1.0])
-println("Порядок сходимости:  ", -fit.param[2])
+f(x, p) = p[1] * x .+ p[2]
+fit = curve_fit(f, log.(ad_error[3, :]), log.(ad_error[2, :]), [1.0, 1.0])
+println("Порядок сходимости:  ", -fit.param[1])
 p = plot(ad_error[3, :], ad_error[2, :]; label = "calc_error", 
 xaxis = ("Number of nodes"),
 yaxis = ("Integration error", :log10), show = true)
-plot!(p, ad_error[3, :], f(ad_error[3, :], fit.param), label = "fit")
+plot!(p, ad_error[3, :], exp.(f(log.(ad_error[3, :]), fit.param)), label = "fit")
