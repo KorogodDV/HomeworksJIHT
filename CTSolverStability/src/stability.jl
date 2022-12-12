@@ -52,7 +52,6 @@ function stability(mixture::Mixture, nmol, pressure, RT, Xinit, basephase::Symbo
         end
         return stability_success(molfrac_test, tpd)
     catch e
-        @warn e
         return stability_fail(ncomponents(mixture))
     end
 end
