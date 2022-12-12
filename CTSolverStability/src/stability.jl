@@ -34,7 +34,7 @@ function stability(mixture::Mixture, nmol, pressure, RT, Xinit, basephase::Symbo
         end
 
         # Подготовить систему лин. уравнений
-        target_function == __create_target(mixture, molfrac, pressure, RT, basephase, testphase)
+        target_function = __create_target(mixture, molfrac, pressure, RT, basephase, testphase)
         # Начальное приближение
         Xrude = exp.(logX)
         # Матрица Якоби
