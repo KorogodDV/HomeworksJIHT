@@ -9,11 +9,17 @@ c5 = VanDerWaalsComponent(19.26 / 10, 0.146 / 1000, 3.38e6, 470 * CTSolverStabil
 c6 = VanDerWaalsComponent(24.71 / 10, 0.1735 / 1000, 3.03e6, 508 * CTSolverStability.GAS_CONSTANT_SI)
 n2 = VanDerWaalsComponent(1.370 / 10, 0.0387 / 1000, 3.39e6, 126 * CTSolverStability.GAS_CONSTANT_SI)
 
-mixture = VanDerWaalsMixture([c1, c2, c3, c4, c5, c6, n2])
-molfrac = [0.9430, 0.0270, 0.0074, 0.0049, 0.0027, 0.010, 0.0140]
+mixture1 = VanDerWaalsMixture([c1, c2, c3, c4, c5, c6, n2])
+# Это я сравнивал ответы с людьми с другим вариантом, чтобы понять, что нет ошибок, мой вариант - все с 1
+mixture2 = VanDerWaalsMixture([c2, c3, c4, c5, c6])
+molfrac1 = [0.9430, 0.0270, 0.0074, 0.0049, 0.0027, 0.010, 0.0140]
+molfrac2 = [0.39842, 0.29313, 0.20006, 0.07143, 0.03696]
+
+mixture = mixture1
+molfrac = molfrac1
 
 pressures = range(1e5, 75e5; length=100)
-temperatures = range(150, 250; length=150)
+temperatures = range(100, 250; length=150)
 
 data = Vector{Any}[]
 open("CTSolverStability/examples/data.tsv", "w") do io
@@ -38,12 +44,12 @@ for i in eachindex(data)
     if curr_data[3] * curr_data[5] != 1
         push!(err[1], Float64(curr_data[1]))
         push!(err[2], Float64(curr_data[2]))
-    elseif maximum(curr_data[[4, 6]]) <= -1e-11
-        push!(unstab[1], Float64(curr_data[1]))
-        push!(unstab[2], Float64(curr_data[2]))
-    else
+    elseif minimum(curr_data[[4, 6]]) >= -1e-10
         push!(stab[1], Float64(curr_data[1]))
         push!(stab[2], Float64(curr_data[2]))
+    else
+        push!(unstab[1], Float64(curr_data[1]))
+        push!(unstab[2], Float64(curr_data[2]))
     end
 end
 
@@ -53,6 +59,5 @@ scatter!(p, err[1], err[2]; label="error", marker = (:red, 2, :rect))
 display(p)
 savefig(p, "CTSolverStability/examples/PT.png")
 
-# Форма получившейся кривой позволяет оценить критическую точку просто как "пиковую" (самую дальнюю от центра) 
-# на этой кривой. 
+# Форма получившейся кривой позволяет оценить критическую точку просто как точку где-то на острие
 println("Критическая точка: T = $(unstab[1][end]) K, P = $(unstab[2][end]) Pa")
